@@ -10,9 +10,11 @@ const start = async () => {
     await connectDB(process.env.MONGO_URI);
     await Product.deleteMany(); // delete all products
     await Product.create(jsonProducts);
-    console.log("Connected to MongoDB");
+    console.log("Success! Imported products");
+    process.exit(0);
   } catch (error) {
     console.error(error);
+    process.exit(1);
   }
 };
 
