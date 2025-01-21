@@ -25,4 +25,4 @@ dist-ssr
 
 .env
 
-./backend/populate.js
+/backend/populate.js
