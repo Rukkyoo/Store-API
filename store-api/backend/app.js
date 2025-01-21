@@ -5,6 +5,9 @@ import notFound from "./middleware/not-found.js";
 import errorMiddleware from "./middleware/error-handler.js";
 import connectDB from "./db/connect.js";
 import productRouter from "./routes/product.js";
+import asyncHandler from "express-async-errors";
+/* const asyncMiddleware = asyncHandler; */
+
 
 dotenv.config();
 
@@ -18,11 +21,13 @@ app.use("/api/v1/products", productRouter);
 
 app.use(notFound);
 app.use(errorMiddleware);
+const port = process.env.PORT || 3000;
+
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
-    app.listen(3000, () => {
-      console.log("Server is listening on port 3000");
+    app.listen(port, () => {
+      console.log(`Server is listening on port ${port}`);
     });
   } catch (error) {
     console.error(error);
