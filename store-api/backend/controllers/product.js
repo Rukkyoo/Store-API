@@ -1,9 +1,10 @@
 import Product from "../models/product.js";
 
 export async function getAllProductsStatic(req, res) {
-  const products = await Product.find({ 
-    name: "Vase",
-   });
+  const search = "bg";
+  const products = await Product.find({
+    name: { $regex: search, $options: "i" },
+  });
   res.status(200).json({ products, nbHits: products.length });
 }
 export async function getAllProducts(req, res) {
@@ -19,7 +20,7 @@ export async function getAllProducts(req, res) {
   }
 
   if (name) {
-    queryObject.name = name;
+    queryObject.name = { $regex: name, $options: "i" };
   }
 
   console.log(queryObject);
