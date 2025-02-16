@@ -1,11 +1,11 @@
 import Product from "../models/product.js";
 
 export async function getAllProductsStatic(req, res) {
-  const products = await Product.find({}).sort("-name"); // Sort arranges the search results in descending order of the name field
+  const products = await Product.find({}).select("name featured")/* .sort("-name") */; // Sort arranges the search results in descending order of the name field
   res.status(200).json({ products, nbHits: products.length });
 }
 export async function getAllProducts(req, res) {
-  const { featured, company, name, sort } = req.query;
+  const { featured, company, name, sort, fields } = req.query;
   const queryObject = {};
 
   if (featured) {
@@ -28,6 +28,11 @@ export async function getAllProducts(req, res) {
   } else {
     result.sort("createdAt");
   }
+
+  if (fields) {
+    const fieldsList = fields.split(",").join(" "); // Converts the fields query to a string
+    result = result.select(fieldsList); // Selects the fields to be returned in the search results
+  } 
   const products = await result;
   res.status(200).json({ products, nbHits: products.length });
 }
