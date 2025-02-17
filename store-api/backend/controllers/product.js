@@ -1,15 +1,15 @@
 import Product from "../models/product.js";
 
 export async function getAllProductsStatic(req, res) {
-  const products = await Product.find({})
-    .sort("name")
-    .select("name featured")
+  const products = await Product.find({ price: { $gt: 30 } })
+    .sort("price")
+    .select("name price")
     .limit(10)
     .skip(1) /* .sort("-name") */ // Sort arranges the search results in descending order of the name field
   res.status(200).json({ products, nbHits: products.length });
 }
 export async function getAllProducts(req, res) {
-  const { featured, company, name, sort, fields } = req.query;
+  const { featured, company, name, sort, fields, numericFilters } = req.query;
   const queryObject = {};
 
   if (featured) {
@@ -23,6 +23,21 @@ export async function getAllProducts(req, res) {
   if (name) {
     queryObject.name = { $regex: name, $options: "i" }; // Ensures there is no case sensitivity in the search
   }
+
+  if (numericFilters) {
+    const operatorMap = {
+      ">": "$gt",
+      ">=": "$gte",
+      "=": "$eq",
+      "<": "$lt",
+      "<=": "$lte",
+    };
+    }
+    const regEx = /\b(<|>|>=|=|<|<=)\b/g; // Regular expression to match the operators
+    let filters = numericFilters.match(regEx); // Matches the operators in the numericFilters query
+    console.log(filters);
+    console.log(numericFilters);
+    
 
   let result = Product.find(queryObject); // Searches the database based on the query object
   if (sort) {
