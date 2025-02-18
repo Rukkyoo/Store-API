@@ -5,12 +5,19 @@ export async function getAllProductsStatic(req, res) {
     .sort("price")
     .select("name price")
     .limit(10)
-    .skip(1) /* .sort("-name") */ // Sort arranges the search results in descending order of the name field
+    .skip(1); /* .sort("-name") */ // Sort arranges the search results in descending order of the name field
   res.status(200).json({ products, nbHits: products.length });
 }
 export async function getAllProducts(req, res) {
   const { featured, company, name, sort, fields, numericFilters } = req.query;
   const queryObject = {};
+  const operatorMap = {
+    ">": "$gt",
+    ">=": "$gte",
+    "=": "$eq",
+    "<": "$lt",
+    "<=": "$lte",
+  };
 
   if (featured) {
     queryObject.featured = featured === "true" ? true : false;
@@ -25,19 +32,26 @@ export async function getAllProducts(req, res) {
   }
 
   if (numericFilters) {
-    const operatorMap = {
+/*     const operatorMap = {
       ">": "$gt",
       ">=": "$gte",
       "=": "$eq",
       "<": "$lt",
       "<=": "$lte",
-    };
+    }; */
+  }
+  const regEx = /\b(<|>|>=|=|<|<=)\b/g; // Regular expression to match the operators
+  let filters = numericFilters.replace(regEx, (match) => `-${operatorMap[match]}-`); // Matches the operators in the numericFilters query
+  const options = ["price", "rating"];
+  filters.split(",").forEach((item) => {
+    const [field, operator, value] = item.split("-");
+    if (options.includes(field)) {
+      queryObject[field] = { [operator]: Number(value) };
     }
-    const regEx = /\b(<|>|>=|=|<|<=)\b/g; // Regular expression to match the operators
-    let filters = numericFilters.match(regEx); // Matches the operators in the numericFilters query
-    console.log(filters);
-    console.log(numericFilters);
-    
+  });
+  /*   console.log(filters);
+  console.log(numericFilters); */
+
 
   let result = Product.find(queryObject); // Searches the database based on the query object
   if (sort) {
