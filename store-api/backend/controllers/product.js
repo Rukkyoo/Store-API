@@ -49,12 +49,15 @@ export async function getAllProducts(req, res) {
       queryObject[field] = { [operator]: Number(value) };
     }
   });
+
+  
   /*   console.log(filters);
   console.log(numericFilters); */
 
 
   let result = Product.find(queryObject); // Searches the database based on the query object
   if (sort) {
+    console.log(sort)
     const sortList = sort.split(",").join(" "); // Converts the sort query to a string
     result = result.sort(sortList); // Sorts the search results based on the sort query
     console.log(sort);
